@@ -1,6 +1,6 @@
 {
   "name": "@hoprik/fastreq",
-  "version": "1.0.1.1",
+  "version": "1.0.3",
   "description": "Library for fast working with request and session",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

@@ -1,4 +1,4 @@
-class ResponseAnswer{
+export class ResponseAnswer{
     private readonly method: string;
     private readonly status: number;
     private readonly body: any;
@@ -28,7 +28,7 @@ class ResponseAnswer{
     }
 }
 
-class Cookies{
+export class Cookies{
     private cookies_list: string[] = []
     append_cookies(cookies: string[]){
         for (let cookie of cookies){
@@ -65,7 +65,7 @@ class Cookies{
     }
 }
 
-class Session {
+export class Session {
     cookies: Cookies | undefined = new Cookies();
     async post(url: string, headers = undefined, payload = undefined, query = undefined, cookies= undefined) {
         if (typeof cookies === "string"){
@@ -122,7 +122,7 @@ class Session {
     }
 }
 
-async function post(url: string, headers = undefined, payload = undefined, query = undefined, cookies = undefined){
+export async function post(url: string, headers = undefined, payload = undefined, query = undefined, cookies = undefined){
     const data = transform_user_data(headers, query, cookies)
     headers = data[0]
     const queryString = data[1]
@@ -139,7 +139,7 @@ async function post(url: string, headers = undefined, payload = undefined, query
     return new ResponseAnswer("post", res.status, res.body, cookies)
 }
 
-async function get(url: string, headers = undefined, payload = undefined, query = undefined, cookies = undefined) {
+export async function get(url: string, headers = undefined, payload = undefined, query = undefined, cookies = undefined) {
     const data = transform_user_data(headers, query, cookies)
     headers = data[0]
     const queryString = data[1]
@@ -175,6 +175,7 @@ function transform_user_data(headers= undefined, query= undefined, cookies= unde
     }
     return [headers, query]
 }
+
 
 module.exports = {
     Response: ResponseAnswer,
