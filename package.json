@@ -1,0 +1,29 @@
+{
+  "name": "@hoprik/fastreq",
+  "version": "1.0.1",
+  "description": "Library for fast working with request and session",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "keywords": [
+    "fetch",
+    "js",
+    "request",
+    "season"
+  ],
+  "scripts": {
+    "build": "tsup"
+  },
+  "author": "hoprik",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "tsup": "^8.0.2"
+  }
+}
