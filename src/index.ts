@@ -2,9 +2,9 @@ export class ResponseAnswer{
     private readonly method: string;
     private readonly status: number;
     private readonly body: any;
-    private readonly cookies: undefined | Cookies;
+    private readonly cookies: undefined | Cookies | string;
 
-    constructor(method: string, status: number, body: any, cookies = undefined){
+    constructor(method: string, status: number, body: any, cookies: undefined | Cookies | string){
         this.method = method;
         this.status = status;
         this.body = body;
@@ -30,7 +30,10 @@ export class ResponseAnswer{
 
 export class Cookies{
     private cookies_list: string[] = []
-    append_cookies(cookies: string[]){
+    append_cookies(cookies: string[] | undefined){
+        if (cookies == undefined){
+            return
+        }
         for (let cookie of cookies){
             this.cookies_list.push(cookie)
         }
@@ -67,7 +70,7 @@ export class Cookies{
 
 export class Session {
     cookies: Cookies | undefined = new Cookies();
-    async post(url: string, headers = undefined, payload = undefined, query = undefined, cookies= undefined) {
+    async post(url: string, headers: undefined | {}, payload: undefined | any, query: undefined | string, cookies: undefined | Cookies | string) {
         if (typeof cookies === "string"){
             // @ts-ignore
             this.cookies.append_cookies_by_text(cookies)
@@ -86,14 +89,11 @@ export class Session {
             headers: headers,
             body: payload
         })
-        if (res.headers.getSetCookie().length !== 0){
-            // @ts-ignore
-            cookies.append_cookies_by_text()
-        }
+        cookies = cookies_convention(cookies, res.headers.getSetCookie())
         this.cookies = cookies
         return new ResponseAnswer("post", res.status, res.body, this.cookies)
     }
-    async get(url: string, headers = undefined, payload = undefined, query = undefined, cookies = undefined) {
+    async get(url: string, headers: undefined | {}, query: string | undefined , cookies: undefined | Cookies) {
         if (typeof cookies === "string"){
             // @ts-ignore
             this.cookies.append_cookies_by_text(cookies)
@@ -102,7 +102,7 @@ export class Session {
             // @ts-ignore
             this.cookies.append_cookies_by_class(cookies)
         }
-        const data = transform_user_data(headers, query, cookies)
+        const data = transform_user_data(headers, query, this.cookies)
         headers = data[0]
         const queryString = data[1]
         const res = await fetch(url + queryString, {
@@ -110,10 +110,7 @@ export class Session {
             credentials: "include",
             headers: headers
         })
-        if (res.headers.getSetCookie().length !== 0){
-            // @ts-ignore
-            cookies.append_cookies_by_text()
-        }
+        cookies = cookies_convention(cookies, res.headers.getSetCookie())
         this.cookies = cookies
         return new ResponseAnswer("get", res.status, res.body, this.cookies)
     }
@@ -122,7 +119,7 @@ export class Session {
     }
 }
 
-export async function post(url: string, headers = undefined, payload = undefined, query = undefined, cookies = undefined){
+export async function post(url: string, headers: undefined | {}, payload: undefined | any, query: undefined | string, cookies: undefined | Cookies | string){
     const data = transform_user_data(headers, query, cookies)
     headers = data[0]
     const queryString = data[1]
@@ -132,14 +129,11 @@ export async function post(url: string, headers = undefined, payload = undefined
         headers: headers,
         body: payload
     })
-    if (res.headers.getSetCookie().length !== 0){
-        // @ts-ignore
-        cookies.append_cookies_by_text()
-    }
+    cookies = cookies_convention(cookies, res.headers.getSetCookie())
     return new ResponseAnswer("post", res.status, res.body, cookies)
 }
 
-export async function get(url: string, headers = undefined, payload = undefined, query = undefined, cookies = undefined) {
+export async function get(url: string, headers: undefined | {}, query: string | undefined , cookies: undefined | Cookies | string) {
     const data = transform_user_data(headers, query, cookies)
     headers = data[0]
     const queryString = data[1]
@@ -148,21 +142,29 @@ export async function get(url: string, headers = undefined, payload = undefined,
         credentials: "include",
         headers: headers
     })
-    if (res.headers.getSetCookie().length !== 0){
-        // @ts-ignore
-        cookies.append_cookies_by_text()
-    }
+    cookies = cookies_convention(cookies, res.headers.getSetCookie())
     return new ResponseAnswer("get", res.status, res.body, cookies)
 }
 
-function transform_user_data(headers= undefined, query= undefined, cookies= undefined){
+function transform_user_data(headers: undefined | {}, query: undefined | string, cookies: undefined | Cookies | string){
     if (cookies != undefined){
         if (headers == undefined) {
-            // @ts-ignore
-            headers = {"Cookies": cookies.get_cookies_by_text()}
+            if (typeof cookies == "string"){
+                headers = {"Cookies": cookies}
+            }
+            else{
+                headers = {"Cookies": cookies.get_cookies_by_text()}
+            }
+
         }else{
-            // @ts-ignore
-            headers["Cookies"] = cookies.get_cookies_by_text()
+            if (typeof cookies == "string"){
+                // @ts-ignore
+                headers["Cookies"] = cookies
+            }
+            else{
+                // @ts-ignore
+                headers["Cookies"] = cookies.get_cookies_by_text()
+            }
         }
     }
     let queryString = ""
@@ -174,6 +176,21 @@ function transform_user_data(headers= undefined, query= undefined, cookies= unde
         queryString.slice(0, -1)
     }
     return [headers, query]
+}
+
+function cookies_convention(cookies: string | undefined | Cookies,  cookie_data: string[] | undefined){
+    if (typeof cookies == "undefined"){
+        cookies = new Cookies()
+        cookies.append_cookies(cookie_data)
+    }else if (typeof cookies == "string"){
+        const last_cookies = cookies
+        cookies = new Cookies()
+        cookies.append_cookies_by_text(last_cookies);
+        cookies.append_cookies(cookie_data)
+    }else{
+        cookies.append_cookies(cookie_data)
+    }
+    return cookies;
 }
 
 

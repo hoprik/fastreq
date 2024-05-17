@@ -1,6 +1,6 @@
 {
   "name": "@hoprik/fastreq",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Library for fast working with request and session",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -18,7 +18,7 @@
     "build": "tsup"
   },
   "author": "hoprik",
-  "licenses" : [
+  "licenses": [
     {
       "type": "MIT",
       "url": "https://www.opensource.org/licenses/mit-license.php"
@@ -33,6 +33,7 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
+    "@hoprik/fastreq": "^1.0.3",
     "tsup": "^8.0.2"
   }
 }
